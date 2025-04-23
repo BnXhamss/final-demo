@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-// import dotenv from "dotenv";
+import dotenv from "dotenv";
 // import connectDB from './settings/dbSettings.js';
 import authRoutes from './routes/authRoutes.js';
 import rideRoutes from './routes/rideRoutes.js';
@@ -14,6 +14,7 @@ app.use(express.json());
 
 // Connect to Database
 // connectDB();
+await mongoose.connect(process.env.MONGO_URI);
 
 // Routes
 app.use('/api/auth', authRoutes);

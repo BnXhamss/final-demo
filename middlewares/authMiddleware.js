@@ -1,4 +1,5 @@
-import { verify } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+const { verify } = jwt;
 
 export default (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
