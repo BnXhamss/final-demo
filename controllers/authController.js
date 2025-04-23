@@ -1,18 +1,26 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const user = require ('../models/usermodel.js')
-const twilio = require('twilio');
+import jwt from 'jsonwebtoken';
+const { sign, verify, decode} = jwt;
 
+import { hash, compare } from 'bcrypt';
+import User from '../models/usermodel.js';
+import twilio from 'twilio';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Load environment variables from .env file
+
+// Initialize Twilio client
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
-exports.register = async (req, res) => {
+// Register a new user and send SMS verification code
+export async function register(req, res) {
   try {
     const { name, email, password, phone, role } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const smsToken = Math.floor(100000 + Math.random() * 900000).toString();
-    const smsTokenExpires = new Date(Date.now() + 5 * 60 * 1000);
 
-    const user = await User.create({
+    const hashedPassword = await hash(password, 10);
+    const smsToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const smsTokenExpires = new Date(Date.now() + 5 * 60 * 1000); // Expires in 5 mins
+
+    const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
@@ -32,40 +40,46 @@ exports.register = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-};
+}
 
-exports.verifyToken = async (req, res) => {
+// Verify token sent via SMS
+export async function verifyToken(req, res) {
   try {
     const { phone, token } = req.body;
-    const user = await User.findOne({ phone });
+    const foundUser = await User.findOne({ phone });
 
-    if (!user || user.smsToken !== token || user.smsTokenExpires < Date.now()) {
+    if (
+      !foundUser ||
+      foundUser.smsToken !== token ||
+      foundUser.smsTokenExpires < new Date()
+    ) {
       return res.status(400).json({ error: 'Invalid or expired token.' });
     }
 
-    user.smsToken = undefined;
-    user.smsTokenExpires = undefined;
-    await user.save();
+    foundUser.smsToken = undefined;
+    foundUser.smsTokenExpires = undefined;
+    await foundUser.save();
 
-    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const jwtToken = sign({ id: foundUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.json({ token: jwtToken });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+}
 
-exports.login = async (req, res) => {
+// Login existing user
+export async function login(req, res) {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const foundUser = await User.findOne({ email });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!foundUser || !(await compare(password, foundUser.password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = sign({ id: foundUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+}

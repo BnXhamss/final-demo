@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const { bookRide, getAllRides } = require('../controllers/rideController');
+import { Router } from 'express';
+const router = Router();
+import { bookRide, getAllRides } from '../controllers/rideController.js';
 
 router.post('/book', bookRide);
 router.get('/', getAllRides);
 
-module.exports = router;
+export default router;
