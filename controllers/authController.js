@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-const { sign, verify, decode } = jwt;
+const { sign } = jwt;
 
 import { hash, compare } from 'bcrypt';
 import User from '../models/usermodel.js';
