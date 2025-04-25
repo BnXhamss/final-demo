@@ -2,13 +2,15 @@
 import { Schema, model } from 'mongoose';
 
 const userSchema = new Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  phone: { type: String, unique: true },
-  smsToken: String,
-  smsTokenExpires: Date,
-  role: { type: String, enum: ['driver', 'passenger'], default: 'passenger' }
+  name: {type: String, unique: true, required: true},
+  email: { type: String, unique: true , required: true},
+  password: {type: String, required: true},
+  phone: { type: String, unique: true , required: true},
+  role: { 
+    type: String, 
+    enum: ['driver', 'passenger'], 
+    default: 'passenger'
+  }
 });
 
-export default model('User', userSchema);
+export const userModel = model('User', userSchema);

@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import authRoutes from './routes/authRoutes.js';
 import rideRoutes from './routes/rideRoutes.js';
 import authMiddleware from './middlewares/authMiddleware.js';
+import userRoutes from './routes/userRoutes.js'
+
 
 dotenv.config();
 const app = express();
@@ -19,5 +21,6 @@ await mongoose.connect(process.env.MONGO_URI);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/rides', authMiddleware, rideRoutes);
+app.use('/api/users', userRoutes)
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
