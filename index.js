@@ -20,6 +20,7 @@ await mongoose.connect(process.env.MONGO_URI);
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', rideRoutes);
 app.use('/api/rides', authMiddleware, rideRoutes);
 app.use('/api/users', userRoutes)
 

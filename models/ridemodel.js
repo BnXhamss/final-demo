@@ -9,3 +9,7 @@ const rideSchema = new Schema({
 });
 
 export default model('Ride', rideSchema);
+
+
+
+

@@ -19,3 +19,11 @@ export const rideValidationSchema = Joi.object({
     'any.only': 'Status must be one of pending, ongoing, or completed',
   }),
 });
+
+export const validateRide = (req, res, next) => {
+    const { error } = rideSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+    next();
+  };
